@@ -29,7 +29,7 @@ func ConnectDatabase() {
 		panic("Koneksi Database Gagal! :"+ err.Error())
 	}
 	// AutoMigrate
-	database.AutoMigrate(&models.Package{}, &models.User{})
+	database.AutoMigrate(&models.Package{}, &models.User{}, &models.AddOn{})
 
 	DB = database
 }

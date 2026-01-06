@@ -26,13 +26,26 @@ func SetupRouter() *gin.Engine {
 		api.GET("/packages", controllers.GetAllPackages)
 		api.GET("/packages/:id", controllers.GetPackageByID)
 		
+		// Public Add-On Routes
+		api.GET("/addons", controllers.GetAllAddOns)
+		api.GET("/addons/:id", controllers.GetAddOnByID)
+		
 		// Protected Routes (Butuh Token)
 		protected := api.Group("/admin")
 		protected.Use(middleware.JwtAuthMiddleware())
 		{
+			// Package Routes
 			protected.POST("/packages", controllers.CreatePackage)
 			protected.PUT("/packages/:id", controllers.UpdatePackage)
 			protected.DELETE("/packages/:id", controllers.DeletePackage)
+			
+			// Add-On Routes
+			protected.POST("/addons", controllers.CreateAddOn)
+			protected.PUT("/addons/:id", controllers.UpdateAddOn)
+			protected.DELETE("/addons/:id", controllers.DeleteAddOn)
+			
+			// Auth Routes
+			protected.PUT("/change-password", controllers.ChangePassword)
 		}
 	}
 
