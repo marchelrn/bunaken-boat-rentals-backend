@@ -1,0 +1,44 @@
+# --- Binary / File Hasil Compile (Wajib di-ignore biar repo gak berat) ---
+# Nama file umum hasil go build
+main
+main.exe
+app
+app.exe
+# Nama project kamu (sesuaikan kalau hasil buildmu namanya ini)
+bunaken-boat-backend
+bunaken-boat-backend.exe
+
+# Semua file eksekusi (Windows/Mac/Linux)
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# --- Keamanan (SANGAT PENTING) ---
+# Jangan pernah upload file environment berisi password!
+.env
+.env.local
+.env.*
+
+# --- Folder Dependency (Opsional) ---
+# Biasanya kita tidak upload folder vendor, cukup go.mod dan go.sum
+vendor/
+
+# --- IDE / Text Editor (Biar settingan laptopmu gak ganggu orang lain) ---
+# VS Code
+.vscode/
+# GoLand (JetBrains) -> Karena kamu pakai GoLand
+.idea/
+*.iws
+*.iml
+*.ipr
+# Sublime/Atom/Vim
+*.swp
+*.swo
+
+# --- File Sampah OS ---
+.DS_Store
+Thumbs.db
