@@ -10,6 +10,10 @@ type RouteDetail struct {
 
 type Package struct {
 	gorm.Model
+	// Legacy fields (for backward compatibility with existing data)
+	Name        string        `json:"name" gorm:"column:name"`
+	Description string        `json:"description" gorm:"column:description"`
+	
 	// Multi-language fields
 	NameID        string        `json:"name_id" gorm:"column:name_id"`
 	NameEN        string        `json:"name_en" gorm:"column:name_en"`
@@ -28,10 +32,8 @@ type Package struct {
 	ExcludesID []string      `json:"excludes_id" gorm:"serializer:json;column:excludes_id"`
 	ExcludesEN []string      `json:"excludes_en" gorm:"serializer:json;column:excludes_en"`
 	
-	// Legacy fields for backward compatibility (will be deprecated)
-	Name        string        `json:"name,omitempty" gorm:"-"`
-	Description string        `json:"description,omitempty" gorm:"-"`
-	Routes      []RouteDetail `json:"routes,omitempty" gorm:"-"`
-	Features    []string      `json:"features,omitempty" gorm:"-"`
-	Excludes    []string      `json:"excludes,omitempty" gorm:"-"`
+	// Legacy JSON fields (for backward compatibility)
+	Routes      []RouteDetail `json:"routes,omitempty" gorm:"serializer:json;column:routes"`
+	Features    []string      `json:"features,omitempty" gorm:"serializer:json;column:features"`
+	Excludes    []string      `json:"excludes,omitempty" gorm:"serializer:json;column:excludes"`
 }

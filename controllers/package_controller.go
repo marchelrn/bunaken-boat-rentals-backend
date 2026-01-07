@@ -69,27 +69,37 @@ func GetAllPackages(c *gin.Context) {
 			// Use ID fields if available, otherwise fallback to legacy fields
 			if pkg.NameID != "" {
 				pkgMap["name"] = pkg.NameID
+			} else if pkg.Name != "" {
+				// Legacy fallback - use old Name field
+				pkgMap["name"] = pkg.Name
+			} else if pkg.Description != "" {
+				// If name is empty but description exists, use description as name
+				// (for backward compatibility with old data structure)
+				pkgMap["name"] = pkg.Description
 			} else {
-				// Legacy fallback - try to get from old Name field if exists
 				pkgMap["name"] = ""
 			}
 			if pkg.DescriptionID != "" {
 				pkgMap["description"] = pkg.DescriptionID
+			} else if pkg.Description != "" {
+				// Legacy fallback - use old Description field
+				pkgMap["description"] = pkg.Description
 			} else {
 				pkgMap["description"] = ""
 			}
-			if len(pkg.RoutesID) > 0 {
-				pkgMap["routes"] = pkg.RoutesID
-			} else {
-				pkgMap["routes"] = []models.RouteDetail{}
-			}
 			if len(pkg.FeaturesID) > 0 {
 				pkgMap["features"] = pkg.FeaturesID
+			} else if len(pkg.Features) > 0 {
+				// Legacy fallback - use old Features field
+				pkgMap["features"] = pkg.Features
 			} else {
 				pkgMap["features"] = []string{}
 			}
 			if len(pkg.ExcludesID) > 0 {
 				pkgMap["excludes"] = pkg.ExcludesID
+			} else if len(pkg.Excludes) > 0 {
+				// Legacy fallback - use old Excludes field
+				pkgMap["excludes"] = pkg.Excludes
 			} else {
 				pkgMap["excludes"] = []string{}
 			}
@@ -100,12 +110,20 @@ func GetAllPackages(c *gin.Context) {
 		if lang == "en" {
 			if len(pkg.RoutesEN) > 0 {
 				routes = pkg.RoutesEN
-			} else {
+			} else if len(pkg.RoutesID) > 0 {
 				routes = pkg.RoutesID
+			} else if len(pkg.Routes) > 0 {
+				// Legacy fallback
+				routes = pkg.Routes
+			} else {
+				routes = []models.RouteDetail{}
 			}
 		} else {
 			if len(pkg.RoutesID) > 0 {
 				routes = pkg.RoutesID
+			} else if len(pkg.Routes) > 0 {
+				// Legacy fallback - use old Routes field
+				routes = pkg.Routes
 			} else {
 				routes = []models.RouteDetail{}
 			}
@@ -119,8 +137,10 @@ func GetAllPackages(c *gin.Context) {
 			if lang == "en" {
 				if route.NameEN != "" {
 					routeMap["name"] = route.NameEN
-				} else {
+				} else if route.NameID != "" {
 					routeMap["name"] = route.NameID
+				} else {
+					routeMap["name"] = ""
 				}
 			} else {
 				if route.NameID != "" {
@@ -197,26 +217,44 @@ func GetPackageByID(c *gin.Context) {
 	} else {
 		if pkg.NameID != "" {
 			pkgMap["name"] = pkg.NameID
+		} else if pkg.Name != "" {
+			// Legacy fallback
+			pkgMap["name"] = pkg.Name
+		} else if pkg.Description != "" {
+			// If name is empty but description exists, use description as name
+			pkgMap["name"] = pkg.Description
 		} else {
 			pkgMap["name"] = ""
 		}
 		if pkg.DescriptionID != "" {
 			pkgMap["description"] = pkg.DescriptionID
+		} else if pkg.Description != "" {
+			// Legacy fallback
+			pkgMap["description"] = pkg.Description
 		} else {
 			pkgMap["description"] = ""
 		}
 		if len(pkg.RoutesID) > 0 {
 			routes = pkg.RoutesID
+		} else if len(pkg.Routes) > 0 {
+			// Legacy fallback
+			routes = pkg.Routes
 		} else {
 			routes = []models.RouteDetail{}
 		}
 		if len(pkg.FeaturesID) > 0 {
 			pkgMap["features"] = pkg.FeaturesID
+		} else if len(pkg.Features) > 0 {
+			// Legacy fallback
+			pkgMap["features"] = pkg.Features
 		} else {
 			pkgMap["features"] = []string{}
 		}
 		if len(pkg.ExcludesID) > 0 {
 			pkgMap["excludes"] = pkg.ExcludesID
+		} else if len(pkg.Excludes) > 0 {
+			// Legacy fallback
+			pkgMap["excludes"] = pkg.Excludes
 		} else {
 			pkgMap["excludes"] = []string{}
 		}
