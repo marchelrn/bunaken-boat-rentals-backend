@@ -24,6 +24,7 @@ Token diperoleh dari endpoint `/auth/login`.
 Semua response mengikuti format standar:
 
 ### Success Response
+
 ```json
 {
   "success": true,
@@ -33,6 +34,7 @@ Semua response mengikuti format standar:
 ```
 
 ### Error Response
+
 ```json
 {
   "success": false,
@@ -45,13 +47,13 @@ Semua response mengikuti format standar:
 
 ## Error Codes
 
-| Status Code | Description |
-|------------|-------------|
-| 200 | Success |
-| 400 | Bad Request (Format JSON salah, validasi gagal) |
-| 401 | Unauthorized (Token tidak valid/tidak ditemukan) |
-| 404 | Not Found (Resource tidak ditemukan) |
-| 500 | Internal Server Error |
+| Status Code | Description                                      |
+| ----------- | ------------------------------------------------ |
+| 200         | Success                                          |
+| 400         | Bad Request (Format JSON salah, validasi gagal)  |
+| 401         | Unauthorized (Token tidak valid/tidak ditemukan) |
+| 404         | Not Found (Resource tidak ditemukan)             |
+| 500         | Internal Server Error                            |
 
 ---
 
@@ -63,9 +65,12 @@ Semua response mengikuti format standar:
 
 **Endpoint:** `POST /auth/register`
 
-**Description:** Membuat akun admin baru. **Catatan:** Endpoint ini sebaiknya dinonaktifkan setelah admin pertama dibuat untuk keamanan.
+**Status:** ⚠️ **DINONAKTIFKAN** - Endpoint ini telah dinonaktifkan untuk keamanan.
+
+**Description:** Membuat akun admin baru. **Catatan:** Endpoint ini telah dinonaktifkan setelah admin pertama dibuat. Untuk mengaktifkan kembali, uncomment baris di `backend/routes/routes.go`.
 
 **Request Body:**
+
 ```json
 {
   "username": "admin",
@@ -75,6 +80,7 @@ Semua response mengikuti format standar:
 ```
 
 **Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -84,6 +90,7 @@ Semua response mengikuti format standar:
 ```
 
 **Error Response (400 Bad Request):**
+
 ```json
 {
   "success": false,
@@ -101,6 +108,7 @@ Semua response mengikuti format standar:
 **Description:** Login untuk mendapatkan JWT token.
 
 **Request Body:**
+
 ```json
 {
   "username": "admin",
@@ -109,6 +117,7 @@ Semua response mengikuti format standar:
 ```
 
 **Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -121,6 +130,7 @@ Semua response mengikuti format standar:
 ```
 
 **Error Response (400 Bad Request):**
+
 ```json
 {
   "success": false,
@@ -142,6 +152,7 @@ Semua response mengikuti format standar:
 **Headers:** Tidak diperlukan (Public endpoint)
 
 **Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -168,15 +179,8 @@ Semua response mengikuti format standar:
           "price": "1500000"
         }
       ],
-      "features": [
-        "Snorkeling equipment",
-        "Life jacket",
-        "Guide"
-      ],
-      "excludes": [
-        "Makan siang",
-        "Minuman"
-      ]
+      "features": ["Snorkeling equipment", "Life jacket", "Guide"],
+      "excludes": ["Makan siang", "Minuman"]
     }
   ]
 }
@@ -191,9 +195,11 @@ Semua response mengikuti format standar:
 **Description:** Mendapatkan detail paket wisata berdasarkan ID.
 
 **Parameters:**
+
 - `id` (path parameter) - ID paket
 
 **Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -222,6 +228,7 @@ Semua response mengikuti format standar:
 ```
 
 **Error Response (404 Not Found):**
+
 ```json
 {
   "success": false,
@@ -241,12 +248,14 @@ Semua response mengikuti format standar:
 **Description:** Membuat paket wisata baru. **Memerlukan autentikasi.**
 
 **Headers:**
+
 ```
 Authorization: Bearer <token>
 Content-Type: application/json
 ```
 
 **Request Body:**
+
 ```json
 {
   "name": "Kapal Speed",
@@ -265,19 +274,13 @@ Content-Type: application/json
       "price": "1500000"
     }
   ],
-  "features": [
-    "Snorkeling equipment",
-    "Life jacket",
-    "Guide"
-  ],
-  "excludes": [
-    "Makan siang",
-    "Minuman"
-  ]
+  "features": ["Snorkeling equipment", "Life jacket", "Guide"],
+  "excludes": ["Makan siang", "Minuman"]
 }
 ```
 
 **Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -291,6 +294,7 @@ Content-Type: application/json
 ```
 
 **Error Response (400 Bad Request):**
+
 ```json
 {
   "success": false,
@@ -300,6 +304,7 @@ Content-Type: application/json
 ```
 
 **Error Response (401 Unauthorized):**
+
 ```json
 {
   "success": false,
@@ -317,15 +322,18 @@ Content-Type: application/json
 **Description:** Mengupdate paket wisata yang sudah ada. **Memerlukan autentikasi.**
 
 **Headers:**
+
 ```
 Authorization: Bearer <token>
 Content-Type: application/json
 ```
 
 **Parameters:**
+
 - `id` (path parameter) - ID paket yang akan diupdate
 
 **Request Body:**
+
 ```json
 {
   "name": "Kapal Speed Updated",
@@ -346,6 +354,7 @@ Content-Type: application/json
 ```
 
 **Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -359,6 +368,7 @@ Content-Type: application/json
 ```
 
 **Error Response (404 Not Found):**
+
 ```json
 {
   "success": false,
@@ -376,14 +386,17 @@ Content-Type: application/json
 **Description:** Menghapus paket wisata. **Memerlukan autentikasi.**
 
 **Headers:**
+
 ```
 Authorization: Bearer <token>
 ```
 
 **Parameters:**
+
 - `id` (path parameter) - ID paket yang akan dihapus
 
 **Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -393,12 +406,90 @@ Authorization: Bearer <token>
 ```
 
 **Error Response (404 Not Found):**
+
 ```json
 {
   "success": false,
   "message": "Package tidak ditemukan",
   "data": null
 }
+```
+
+---
+
+#### 8. Upload Package Image
+
+**Endpoint:** `POST /admin/packages/upload-image`
+
+**Description:** Mengupload gambar untuk paket wisata. **Memerlukan autentikasi.**
+
+**Headers:**
+
+```
+Authorization: Bearer <token>
+Content-Type: multipart/form-data
+```
+
+**Request Body (Form Data):**
+
+- `image` (file) - File gambar yang akan diupload
+
+**File Requirements:**
+
+- Format yang didukung: JPG, JPEG, PNG, GIF, WEBP
+- Ukuran maksimal: 5MB
+
+**Response (200 OK):**
+
+```json
+{
+  "success": true,
+  "message": "Gambar berhasil diupload",
+  "data": {
+    "image_url": "/uploads/packages/package_1234567890.jpg",
+    "filename": "package_1234567890.jpg"
+  }
+}
+```
+
+**Error Response (400 Bad Request - Invalid Format):**
+
+```json
+{
+  "success": false,
+  "message": "Format file tidak didukung. Gunakan: jpg, jpeg, png, gif, atau webp",
+  "data": null
+}
+```
+
+**Error Response (400 Bad Request - File Too Large):**
+
+```json
+{
+  "success": false,
+  "message": "Ukuran file terlalu besar. Maksimal 5MB",
+  "data": null
+}
+```
+
+**Error Response (401 Unauthorized):**
+
+```json
+{
+  "success": false,
+  "message": "Token tidak ditemukan",
+  "data": null
+}
+```
+
+**Note:** Setelah upload berhasil, gunakan `image_url` yang dikembalikan untuk field `image_url` saat membuat atau mengupdate package.
+
+**Example cURL:**
+
+```bash
+curl -X POST https://bunakencharter.up.railway.app/api/admin/packages/upload-image \
+  -H "Authorization: Bearer YOUR_TOKEN_HERE" \
+  -F "image=@/path/to/image.jpg"
 ```
 
 ---
@@ -414,6 +505,7 @@ Authorization: Bearer <token>
 **Headers:** Tidak diperlukan (Public endpoint)
 
 **Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -450,9 +542,11 @@ Authorization: Bearer <token>
 **Description:** Mendapatkan detail add-on berdasarkan ID.
 
 **Parameters:**
+
 - `id` (path parameter) - ID add-on
 
 **Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -470,6 +564,7 @@ Authorization: Bearer <token>
 ```
 
 **Error Response (404 Not Found):**
+
 ```json
 {
   "success": false,
@@ -489,12 +584,14 @@ Authorization: Bearer <token>
 **Description:** Membuat add-on baru. **Memerlukan autentikasi.**
 
 **Headers:**
+
 ```
 Authorization: Bearer <token>
 Content-Type: application/json
 ```
 
 **Request Body:**
+
 ```json
 {
   "name": "Kamera Underwater",
@@ -504,6 +601,7 @@ Content-Type: application/json
 ```
 
 **Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -518,6 +616,7 @@ Content-Type: application/json
 ```
 
 **Error Response (400 Bad Request):**
+
 ```json
 {
   "success": false,
@@ -535,15 +634,18 @@ Content-Type: application/json
 **Description:** Mengupdate add-on yang sudah ada. **Memerlukan autentikasi.**
 
 **Headers:**
+
 ```
 Authorization: Bearer <token>
 Content-Type: application/json
 ```
 
 **Parameters:**
+
 - `id` (path parameter) - ID add-on yang akan diupdate
 
 **Request Body:**
+
 ```json
 {
   "name": "Kamera Underwater Pro",
@@ -553,6 +655,7 @@ Content-Type: application/json
 ```
 
 **Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -567,6 +670,7 @@ Content-Type: application/json
 ```
 
 **Error Response (404 Not Found):**
+
 ```json
 {
   "success": false,
@@ -584,14 +688,17 @@ Content-Type: application/json
 **Description:** Menghapus add-on. **Memerlukan autentikasi.**
 
 **Headers:**
+
 ```
 Authorization: Bearer <token>
 ```
 
 **Parameters:**
+
 - `id` (path parameter) - ID add-on yang akan dihapus
 
 **Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -601,6 +708,7 @@ Authorization: Bearer <token>
 ```
 
 **Error Response (404 Not Found):**
+
 ```json
 {
   "success": false,
@@ -620,12 +728,14 @@ Authorization: Bearer <token>
 **Description:** Mengubah password admin. **Memerlukan autentikasi.**
 
 **Headers:**
+
 ```
 Authorization: Bearer <token>
 Content-Type: application/json
 ```
 
 **Request Body:**
+
 ```json
 {
   "old_password": "password123",
@@ -634,10 +744,12 @@ Content-Type: application/json
 ```
 
 **Validation:**
+
 - `old_password`: Required
 - `new_password`: Required, minimum 6 karakter
 
 **Response (200 OK):**
+
 ```json
 {
   "success": true,
@@ -647,6 +759,7 @@ Content-Type: application/json
 ```
 
 **Error Response (400 Bad Request):**
+
 ```json
 {
   "success": false,
@@ -656,6 +769,7 @@ Content-Type: application/json
 ```
 
 **Error Response (400 Bad Request - Validation):**
+
 ```json
 {
   "success": false,
@@ -665,6 +779,7 @@ Content-Type: application/json
 ```
 
 **Error Response (401 Unauthorized):**
+
 ```json
 {
   "success": false,
@@ -737,6 +852,7 @@ Content-Type: application/json
 ### cURL Examples
 
 #### Login
+
 ```bash
 curl -X POST https://bunakencharter.up.railway.app/api/auth/login \
   -H "Content-Type: application/json" \
@@ -747,11 +863,13 @@ curl -X POST https://bunakencharter.up.railway.app/api/auth/login \
 ```
 
 #### Get All Packages
+
 ```bash
 curl -X GET https://bunakencharter.up.railway.app/api/packages
 ```
 
 #### Create Package (Protected)
+
 ```bash
 curl -X POST https://bunakencharter.up.railway.app/api/admin/packages \
   -H "Content-Type: application/json" \
@@ -775,6 +893,7 @@ curl -X POST https://bunakencharter.up.railway.app/api/admin/packages \
 ```
 
 #### Change Password (Protected)
+
 ```bash
 curl -X PUT https://bunakencharter.up.railway.app/api/admin/change-password \
   -H "Content-Type: application/json" \
@@ -804,4 +923,3 @@ curl -X PUT https://bunakencharter.up.railway.app/api/admin/change-password \
 ## Support
 
 Untuk pertanyaan atau masalah, silakan hubungi tim development.
-

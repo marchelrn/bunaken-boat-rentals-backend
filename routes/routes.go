@@ -11,6 +11,9 @@ import (
 func SetupRouter() *gin.Engine {
 	r := gin.Default()
 
+	// Serve static files for uploads
+	r.Static("/uploads", "./uploads")
+
 	config := cors.DefaultConfig()
 	config.AllowAllOrigins = true 
 	config.AllowHeaders = []string{"Origin", "Content-Length", "Content-Type", "Authorization"}
@@ -19,7 +22,7 @@ func SetupRouter() *gin.Engine {
 	api := r.Group("/api")
 	{
 		// Auth Routes (Public)
-		api.POST("/auth/register", controllers.Register) // Gunakan sekali buat bikin admin pertama, lalu bisa dikomentari/diamankan
+		// api.POST("/auth/register", controllers.Register) // Dinonaktifkan untuk keamanan - gunakan hanya untuk membuat admin pertama
 		api.POST("/auth/login", controllers.Login)
 
 		// Public Package Routes
@@ -38,6 +41,7 @@ func SetupRouter() *gin.Engine {
 			protected.POST("/packages", controllers.CreatePackage)
 			protected.PUT("/packages/:id", controllers.UpdatePackage)
 			protected.DELETE("/packages/:id", controllers.DeletePackage)
+			protected.POST("/packages/upload-image", controllers.UploadPackageImage)
 			
 			// Add-On Routes
 			protected.POST("/addons", controllers.CreateAddOn)
