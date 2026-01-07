@@ -16,7 +16,63 @@ func GetAllPackages(c *gin.Context) {
 		utils.APIError(c, http.StatusInternalServerError, "Gagal Mengambil database")
 		return
 	}
-	utils.APIResponse(c, http.StatusOK, "Berhasil mengambil data Packages", packages)
+	
+	// Get language parameter (default: "id")
+	lang := c.DefaultQuery("lang", "id")
+	if lang != "id" && lang != "en" {
+		lang = "id"
+	}
+	
+	// Transform packages based on language
+	transformedPackages := make([]map[string]interface{}, len(packages))
+	for i, pkg := range packages {
+		pkgMap := map[string]interface{}{
+			"ID":          pkg.ID,
+			"CreatedAt":   pkg.CreatedAt,
+			"UpdatedAt":   pkg.UpdatedAt,
+			"DeletedAt":   pkg.DeletedAt,
+			"capacity":    pkg.Capacity,
+			"duration":    pkg.Duration,
+			"is_popular":  pkg.IsPopular,
+			"image_url":   pkg.ImageURL,
+		}
+		
+		// Set language-specific fields
+		if lang == "en" {
+			pkgMap["name"] = pkg.NameEN
+			pkgMap["description"] = pkg.DescriptionEN
+			pkgMap["routes"] = pkg.RoutesEN
+			pkgMap["features"] = pkg.FeaturesEN
+			pkgMap["excludes"] = pkg.ExcludesEN
+		} else {
+			pkgMap["name"] = pkg.NameID
+			pkgMap["description"] = pkg.DescriptionID
+			pkgMap["routes"] = pkg.RoutesID
+			pkgMap["features"] = pkg.FeaturesID
+			pkgMap["excludes"] = pkg.ExcludesID
+		}
+		
+		// Transform routes to match frontend format
+		if routes, ok := pkgMap["routes"].([]models.RouteDetail); ok {
+			transformedRoutes := make([]map[string]string, len(routes))
+			for j, route := range routes {
+				routeMap := map[string]string{
+					"price": route.Price,
+				}
+				if lang == "en" {
+					routeMap["name"] = route.NameEN
+				} else {
+					routeMap["name"] = route.NameID
+				}
+				transformedRoutes[j] = routeMap
+			}
+			pkgMap["routes"] = transformedRoutes
+		}
+		
+		transformedPackages[i] = pkgMap
+	}
+	
+	utils.APIResponse(c, http.StatusOK, "Berhasil mengambil data Packages", transformedPackages)
 }
 
 func GetPackageByID(c *gin.Context) {
@@ -28,7 +84,62 @@ func GetPackageByID(c *gin.Context) {
 		return
 	}
 
-	utils.APIResponse(c, http.StatusOK, "Berhasil mengambil detail Package", pkg)
+	// Get language parameter (default: "id")
+	lang := c.DefaultQuery("lang", "id")
+	if lang != "id" && lang != "en" {
+		lang = "id"
+	}
+	
+	// Transform package based on language
+	pkgMap := map[string]interface{}{
+		"ID":          pkg.ID,
+		"CreatedAt":   pkg.CreatedAt,
+		"UpdatedAt":   pkg.UpdatedAt,
+		"DeletedAt":   pkg.DeletedAt,
+		"capacity":    pkg.Capacity,
+		"duration":    pkg.Duration,
+		"is_popular":  pkg.IsPopular,
+		"image_url":   pkg.ImageURL,
+	}
+	
+	// Set language-specific fields
+	if lang == "en" {
+		pkgMap["name"] = pkg.NameEN
+		pkgMap["description"] = pkg.DescriptionEN
+		pkgMap["routes"] = pkg.RoutesEN
+		pkgMap["features"] = pkg.FeaturesEN
+		pkgMap["excludes"] = pkg.ExcludesEN
+	} else {
+		pkgMap["name"] = pkg.NameID
+		pkgMap["description"] = pkg.DescriptionID
+		pkgMap["routes"] = pkg.RoutesID
+		pkgMap["features"] = pkg.FeaturesID
+		pkgMap["excludes"] = pkg.ExcludesID
+	}
+	
+	// Transform routes to match frontend format
+	var routes []models.RouteDetail
+	if lang == "en" {
+		routes = pkg.RoutesEN
+	} else {
+		routes = pkg.RoutesID
+	}
+	
+	transformedRoutes := make([]map[string]string, len(routes))
+	for j, route := range routes {
+		routeMap := map[string]string{
+			"price": route.Price,
+		}
+		if lang == "en" {
+			routeMap["name"] = route.NameEN
+		} else {
+			routeMap["name"] = route.NameID
+		}
+		transformedRoutes[j] = routeMap
+	}
+	pkgMap["routes"] = transformedRoutes
+
+	utils.APIResponse(c, http.StatusOK, "Berhasil mengambil detail Package", pkgMap)
 }
 
 func CreatePackage(c *gin.Context) {
