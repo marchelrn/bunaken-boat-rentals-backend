@@ -29,11 +29,14 @@ type Package struct {
 	RoutesEN   []RouteDetail `json:"routes_en" gorm:"serializer:json;column:routes_en"`
 	FeaturesID []string      `json:"features_id" gorm:"serializer:json;column:features_id"`
 	FeaturesEN []string      `json:"features_en" gorm:"serializer:json;column:features_en"`
+	IncludesID []string      `json:"includes_id" gorm:"serializer:json;column:includes_id"`
+	IncludesEN []string      `json:"includes_en" gorm:"serializer:json;column:includes_en"`
 	ExcludesID []string      `json:"excludes_id" gorm:"serializer:json;column:excludes_id"`
 	ExcludesEN []string      `json:"excludes_en" gorm:"serializer:json;column:excludes_en"`
 	
 	// Legacy JSON fields (for backward compatibility)
 	Routes      []RouteDetail `json:"routes,omitempty" gorm:"serializer:json;column:routes"`
 	Features    []string      `json:"features,omitempty" gorm:"serializer:json;column:features"`
+	Includes    []string      `json:"includes,omitempty" gorm:"serializer:json;column:includes"`
 	Excludes    []string      `json:"excludes,omitempty" gorm:"serializer:json;column:excludes"`
 }

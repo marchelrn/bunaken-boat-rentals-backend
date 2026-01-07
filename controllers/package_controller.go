@@ -44,6 +44,8 @@ func GetAllPackages(c *gin.Context) {
 			"routes_en":      pkg.RoutesEN,
 			"features_id":    pkg.FeaturesID,
 			"features_en":    pkg.FeaturesEN,
+			"includes_id":    pkg.IncludesID,
+			"includes_en":    pkg.IncludesEN,
 			"excludes_id":    pkg.ExcludesID,
 			"excludes_en":    pkg.ExcludesEN,
 			// Legacy fields
@@ -51,6 +53,7 @@ func GetAllPackages(c *gin.Context) {
 			"description": pkg.Description,
 			"routes":      pkg.Routes,
 			"features":    pkg.Features,
+			"includes":    pkg.Includes,
 			"excludes":    pkg.Excludes,
 		}
 		
@@ -76,6 +79,11 @@ func GetAllPackages(c *gin.Context) {
 				pkgMap["features"] = pkg.FeaturesEN
 			} else {
 				pkgMap["features"] = pkg.FeaturesID
+			}
+			if len(pkg.IncludesEN) > 0 {
+				pkgMap["includes"] = pkg.IncludesEN
+			} else {
+				pkgMap["includes"] = pkg.IncludesID
 			}
 			if len(pkg.ExcludesEN) > 0 {
 				pkgMap["excludes"] = pkg.ExcludesEN
@@ -251,6 +259,11 @@ func GetPackageByID(c *gin.Context) {
 		} else {
 			pkgMap["features"] = pkg.FeaturesID
 		}
+		if len(pkg.IncludesEN) > 0 {
+			pkgMap["includes"] = pkg.IncludesEN
+		} else {
+			pkgMap["includes"] = pkg.IncludesID
+		}
 		if len(pkg.ExcludesEN) > 0 {
 			pkgMap["excludes"] = pkg.ExcludesEN
 		} else {
@@ -291,6 +304,14 @@ func GetPackageByID(c *gin.Context) {
 			pkgMap["features"] = pkg.Features
 		} else {
 			pkgMap["features"] = []string{}
+		}
+		if len(pkg.IncludesID) > 0 {
+			pkgMap["includes"] = pkg.IncludesID
+		} else if len(pkg.Includes) > 0 {
+			// Legacy fallback
+			pkgMap["includes"] = pkg.Includes
+		} else {
+			pkgMap["includes"] = []string{}
 		}
 		if len(pkg.ExcludesID) > 0 {
 			pkgMap["excludes"] = pkg.ExcludesID
@@ -367,6 +388,10 @@ func CreatePackage(c *gin.Context) {
 	if len(input.FeaturesID) == 0 && len(input.Features) > 0 {
 		input.FeaturesID = input.Features
 	}
+	// If IncludesID is empty but Includes is provided, use Includes as IncludesID
+	if len(input.IncludesID) == 0 && len(input.Includes) > 0 {
+		input.IncludesID = input.Includes
+	}
 	// If ExcludesID is empty but Excludes is provided, use Excludes as ExcludesID
 	if len(input.ExcludesID) == 0 && len(input.Excludes) > 0 {
 		input.ExcludesID = input.Excludes
@@ -385,6 +410,9 @@ func CreatePackage(c *gin.Context) {
 	}
 	if len(input.Features) == 0 && len(input.FeaturesID) > 0 {
 		input.Features = input.FeaturesID
+	}
+	if len(input.Includes) == 0 && len(input.IncludesID) > 0 {
+		input.Includes = input.IncludesID
 	}
 	if len(input.Excludes) == 0 && len(input.ExcludesID) > 0 {
 		input.Excludes = input.ExcludesID
@@ -438,6 +466,12 @@ func UpdatePackage(c *gin.Context) {
 	}
 	if input.FeaturesEN != nil {
 		pkg.FeaturesEN = input.FeaturesEN
+	}
+	if input.IncludesID != nil {
+		pkg.IncludesID = input.IncludesID
+	}
+	if input.IncludesEN != nil {
+		pkg.IncludesEN = input.IncludesEN
 	}
 	if input.ExcludesID != nil {
 		pkg.ExcludesID = input.ExcludesID
