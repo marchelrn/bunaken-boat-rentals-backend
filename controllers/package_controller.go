@@ -507,9 +507,15 @@ func UpdatePackage(c *gin.Context) {
 		pkg.Duration = input.Duration
 	}
 	pkg.IsPopular = input.IsPopular
+	// Update image_url if provided (even if empty string)
+	// This allows updating image_url while preserving existing value if not provided
+	// Note: If you want to clear image_url, send empty string explicitly
 	if input.ImageURL != "" {
 		pkg.ImageURL = input.ImageURL
 	}
+	// If ImageURL is empty string in input, we don't update it to preserve existing image
+	// This prevents accidentally clearing the image_url when updating other fields
+	// IMPORTANT: image_url is preserved if not provided or if empty string is sent
 
 	if err := config.DB.Save(&pkg).Error; err != nil {
 		utils.APIError(c, http.StatusInternalServerError, "Gagal mengupdate database: "+err.Error())

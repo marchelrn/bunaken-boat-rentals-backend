@@ -22,7 +22,7 @@ type Package struct {
 	Capacity      string        `json:"capacity"`
 	Duration      string        `json:"duration"`
 	IsPopular     bool          `json:"is_popular"`
-	ImageURL      string        `json:"image_url"` 
+	ImageURL      string        `json:"image_url" gorm:"column:image_url;type:varchar(500);default:''"` 
 	
 	// JSON DB - Multi-language
 	RoutesID   []RouteDetail `json:"routes_id" gorm:"serializer:json;column:routes_id"`
