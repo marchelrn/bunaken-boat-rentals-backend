@@ -324,16 +324,94 @@ func UpdatePackage(c *gin.Context) {
 	// TAPI hati-hati dengan field boolean false atau string kosong (zero values).
 	// Jika ingin replace total, lebih aman assign manual atau gunakan map.
 	
-	// Sederhananya kita update field-field penting:
-	pkg.Name = input.Name
-	pkg.Description = input.Description
+	// Update multi-language fields
+	if input.NameID != "" {
+		pkg.NameID = input.NameID
+	}
+	if input.NameEN != "" {
+		pkg.NameEN = input.NameEN
+	}
+	if input.DescriptionID != "" {
+		pkg.DescriptionID = input.DescriptionID
+	}
+	if input.DescriptionEN != "" {
+		pkg.DescriptionEN = input.DescriptionEN
+	}
+	if len(input.RoutesID) > 0 {
+		pkg.RoutesID = input.RoutesID
+	}
+	if len(input.RoutesEN) > 0 {
+		pkg.RoutesEN = input.RoutesEN
+	}
+	if len(input.FeaturesID) > 0 {
+		pkg.FeaturesID = input.FeaturesID
+	}
+	if len(input.FeaturesEN) > 0 {
+		pkg.FeaturesEN = input.FeaturesEN
+	}
+	if len(input.ExcludesID) > 0 {
+		pkg.ExcludesID = input.ExcludesID
+	}
+	if len(input.ExcludesEN) > 0 {
+		pkg.ExcludesEN = input.ExcludesEN
+	}
+	
+	// Legacy fields for backward compatibility
+	if input.Name != "" {
+		pkg.Name = input.Name
+		// If NameID is empty, use Name as NameID
+		if pkg.NameID == "" {
+			pkg.NameID = input.Name
+		}
+	}
+	if input.Description != "" {
+		pkg.Description = input.Description
+		// If DescriptionID is empty, use Description as DescriptionID
+		if pkg.DescriptionID == "" {
+			pkg.DescriptionID = input.Description
+		}
+	}
+	if len(input.Routes) > 0 {
+		pkg.Routes = input.Routes
+		// If RoutesID is empty, convert Routes to RoutesID
+		if len(pkg.RoutesID) == 0 {
+			convertedRoutes := make([]models.RouteDetail, len(input.Routes))
+			for i, r := range input.Routes {
+				routeName := ""
+				if r.NameID != "" {
+					routeName = r.NameID
+				} else if r.NameEN != "" {
+					routeName = r.NameEN
+				}
+				convertedRoutes[i] = models.RouteDetail{
+					NameID: routeName,
+					NameEN: routeName,
+					Price:  r.Price,
+				}
+			}
+			pkg.RoutesID = convertedRoutes
+		}
+	}
+	if len(input.Features) > 0 {
+		pkg.Features = input.Features
+		// If FeaturesID is empty, use Features as FeaturesID
+		if len(pkg.FeaturesID) == 0 {
+			pkg.FeaturesID = input.Features
+		}
+	}
+	if len(input.Excludes) > 0 {
+		pkg.Excludes = input.Excludes
+		// If ExcludesID is empty, use Excludes as ExcludesID
+		if len(pkg.ExcludesID) == 0 {
+			pkg.ExcludesID = input.Excludes
+		}
+	}
+	
+	// Common fields
 	pkg.Capacity = input.Capacity
 	pkg.Duration = input.Duration
 	pkg.IsPopular = input.IsPopular
 	pkg.ImageURL = input.ImageURL
-	pkg.Routes = input.Routes
-	pkg.Features = input.Features
-	pkg.Excludes = input.Excludes
 
 	if err := config.DB.Save(&pkg).Error; err != nil {
 		utils.APIError(c, http.StatusInternalServerError, "Gagal mengupdate database: "+err.Error())
