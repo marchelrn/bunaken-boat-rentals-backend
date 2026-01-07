@@ -37,37 +37,101 @@ func GetAllPackages(c *gin.Context) {
 			"image_url":   pkg.ImageURL,
 		}
 		
-		// Set language-specific fields
+		// Set language-specific fields with fallback to legacy fields
 		if lang == "en" {
-			pkgMap["name"] = pkg.NameEN
-			pkgMap["description"] = pkg.DescriptionEN
-			pkgMap["routes"] = pkg.RoutesEN
-			pkgMap["features"] = pkg.FeaturesEN
-			pkgMap["excludes"] = pkg.ExcludesEN
+			// Use EN fields if available, otherwise fallback to ID fields
+			if pkg.NameEN != "" {
+				pkgMap["name"] = pkg.NameEN
+			} else {
+				pkgMap["name"] = pkg.NameID
+			}
+			if pkg.DescriptionEN != "" {
+				pkgMap["description"] = pkg.DescriptionEN
+			} else {
+				pkgMap["description"] = pkg.DescriptionID
+			}
+			if len(pkg.RoutesEN) > 0 {
+				pkgMap["routes"] = pkg.RoutesEN
+			} else {
+				pkgMap["routes"] = pkg.RoutesID
+			}
+			if len(pkg.FeaturesEN) > 0 {
+				pkgMap["features"] = pkg.FeaturesEN
+			} else {
+				pkgMap["features"] = pkg.FeaturesID
+			}
+			if len(pkg.ExcludesEN) > 0 {
+				pkgMap["excludes"] = pkg.ExcludesEN
+			} else {
+				pkgMap["excludes"] = pkg.ExcludesID
+			}
 		} else {
-			pkgMap["name"] = pkg.NameID
-			pkgMap["description"] = pkg.DescriptionID
-			pkgMap["routes"] = pkg.RoutesID
-			pkgMap["features"] = pkg.FeaturesID
-			pkgMap["excludes"] = pkg.ExcludesID
+			// Use ID fields if available, otherwise fallback to legacy fields
+			if pkg.NameID != "" {
+				pkgMap["name"] = pkg.NameID
+			} else {
+				// Legacy fallback - try to get from old Name field if exists
+				pkgMap["name"] = ""
+			}
+			if pkg.DescriptionID != "" {
+				pkgMap["description"] = pkg.DescriptionID
+			} else {
+				pkgMap["description"] = ""
+			}
+			if len(pkg.RoutesID) > 0 {
+				pkgMap["routes"] = pkg.RoutesID
+			} else {
+				pkgMap["routes"] = []models.RouteDetail{}
+			}
+			if len(pkg.FeaturesID) > 0 {
+				pkgMap["features"] = pkg.FeaturesID
+			} else {
+				pkgMap["features"] = []string{}
+			}
+			if len(pkg.ExcludesID) > 0 {
+				pkgMap["excludes"] = pkg.ExcludesID
+			} else {
+				pkgMap["excludes"] = []string{}
+			}
 		}
 		
 		// Transform routes to match frontend format
-		if routes, ok := pkgMap["routes"].([]models.RouteDetail); ok {
-			transformedRoutes := make([]map[string]string, len(routes))
-			for j, route := range routes {
-				routeMap := map[string]string{
-					"price": route.Price,
-				}
-				if lang == "en" {
+		var routes []models.RouteDetail
+		if lang == "en" {
+			if len(pkg.RoutesEN) > 0 {
+				routes = pkg.RoutesEN
+			} else {
+				routes = pkg.RoutesID
+			}
+		} else {
+			if len(pkg.RoutesID) > 0 {
+				routes = pkg.RoutesID
+			} else {
+				routes = []models.RouteDetail{}
+			}
+		}
+		
+		transformedRoutes := make([]map[string]string, len(routes))
+		for j, route := range routes {
+			routeMap := map[string]string{
+				"price": route.Price,
+			}
+			if lang == "en" {
+				if route.NameEN != "" {
 					routeMap["name"] = route.NameEN
 				} else {
 					routeMap["name"] = route.NameID
 				}
-				transformedRoutes[j] = routeMap
+			} else {
+				if route.NameID != "" {
+					routeMap["name"] = route.NameID
+				} else {
+					routeMap["name"] = ""
+				}
 			}
-			pkgMap["routes"] = transformedRoutes
+			transformedRoutes[j] = routeMap
 		}
+		pkgMap["routes"] = transformedRoutes
 		
 		transformedPackages[i] = pkgMap
 	}
@@ -102,38 +166,80 @@ func GetPackageByID(c *gin.Context) {
 		"image_url":   pkg.ImageURL,
 	}
 	
-	// Set language-specific fields
+	// Set language-specific fields with fallback
+	var routes []models.RouteDetail
 	if lang == "en" {
-		pkgMap["name"] = pkg.NameEN
-		pkgMap["description"] = pkg.DescriptionEN
-		pkgMap["routes"] = pkg.RoutesEN
-		pkgMap["features"] = pkg.FeaturesEN
-		pkgMap["excludes"] = pkg.ExcludesEN
+		if pkg.NameEN != "" {
+			pkgMap["name"] = pkg.NameEN
+		} else {
+			pkgMap["name"] = pkg.NameID
+		}
+		if pkg.DescriptionEN != "" {
+			pkgMap["description"] = pkg.DescriptionEN
+		} else {
+			pkgMap["description"] = pkg.DescriptionID
+		}
+		if len(pkg.RoutesEN) > 0 {
+			routes = pkg.RoutesEN
+		} else {
+			routes = pkg.RoutesID
+		}
+		if len(pkg.FeaturesEN) > 0 {
+			pkgMap["features"] = pkg.FeaturesEN
+		} else {
+			pkgMap["features"] = pkg.FeaturesID
+		}
+		if len(pkg.ExcludesEN) > 0 {
+			pkgMap["excludes"] = pkg.ExcludesEN
+		} else {
+			pkgMap["excludes"] = pkg.ExcludesID
+		}
 	} else {
-		pkgMap["name"] = pkg.NameID
-		pkgMap["description"] = pkg.DescriptionID
-		pkgMap["routes"] = pkg.RoutesID
-		pkgMap["features"] = pkg.FeaturesID
-		pkgMap["excludes"] = pkg.ExcludesID
+		if pkg.NameID != "" {
+			pkgMap["name"] = pkg.NameID
+		} else {
+			pkgMap["name"] = ""
+		}
+		if pkg.DescriptionID != "" {
+			pkgMap["description"] = pkg.DescriptionID
+		} else {
+			pkgMap["description"] = ""
+		}
+		if len(pkg.RoutesID) > 0 {
+			routes = pkg.RoutesID
+		} else {
+			routes = []models.RouteDetail{}
+		}
+		if len(pkg.FeaturesID) > 0 {
+			pkgMap["features"] = pkg.FeaturesID
+		} else {
+			pkgMap["features"] = []string{}
+		}
+		if len(pkg.ExcludesID) > 0 {
+			pkgMap["excludes"] = pkg.ExcludesID
+		} else {
+			pkgMap["excludes"] = []string{}
+		}
 	}
 	
 	// Transform routes to match frontend format
-	var routes []models.RouteDetail
-	if lang == "en" {
-		routes = pkg.RoutesEN
-	} else {
-		routes = pkg.RoutesID
-	}
-	
 	transformedRoutes := make([]map[string]string, len(routes))
 	for j, route := range routes {
 		routeMap := map[string]string{
 			"price": route.Price,
 		}
 		if lang == "en" {
-			routeMap["name"] = route.NameEN
+			if route.NameEN != "" {
+				routeMap["name"] = route.NameEN
+			} else {
+				routeMap["name"] = route.NameID
+			}
 		} else {
-			routeMap["name"] = route.NameID
+			if route.NameID != "" {
+				routeMap["name"] = route.NameID
+			} else {
+				routeMap["name"] = ""
+			}
 		}
 		transformedRoutes[j] = routeMap
 	}
