@@ -44,7 +44,7 @@ func UploadPackageImage(c *gin.Context) {
 	}
 
 	// Create uploads directory if it doesn't exist
-	uploadDir := "uploads/packages"
+	uploadDir := "/uploads/packages"
 	if err := os.MkdirAll(uploadDir, 0755); err != nil {
 		utils.APIError(c, http.StatusInternalServerError, "Gagal membuat direktori upload: "+err.Error())
 		return
