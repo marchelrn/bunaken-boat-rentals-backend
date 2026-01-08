@@ -12,7 +12,8 @@ func SetupRouter() *gin.Engine {
 	r := gin.Default()
 
 	// Serve static files for uploads
-	r.Static("/uploads", "./uploads")
+	// Use absolute path to match volume mount path (/uploads)
+	r.Static("/uploads", "/uploads")
 
 	config := cors.DefaultConfig()
 	config.AllowAllOrigins = true 
