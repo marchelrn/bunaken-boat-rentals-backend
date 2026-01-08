@@ -417,6 +417,12 @@ func CreatePackage(c *gin.Context) {
 	if len(input.Excludes) == 0 && len(input.ExcludesID) > 0 {
 		input.Excludes = input.ExcludesID
 	}
+	
+	// CRITICAL: Ensure ImageURL has a default value if empty
+	// This prevents image_url from being NULL in the database
+	if input.ImageURL == "" {
+		input.ImageURL = "" // Explicitly set to empty string (not NULL)
+	}
 
 	result := config.DB.Create(&input)
 	if result.Error != nil {
@@ -541,17 +547,35 @@ func UpdatePackage(c *gin.Context) {
 		pkg.Duration = input.Duration
 	}
 	pkg.IsPopular = input.IsPopular
-	// Update image_url if provided (even if empty string)
-	// This allows updating image_url while preserving existing value if not provided
-	// Note: If you want to clear image_url, send empty string explicitly
+	
+	// CRITICAL: Preserve ImageURL - only update if explicitly provided and not empty
+	// Save existing ImageURL before any updates to prevent loss during migration
+	existingImageURL := pkg.ImageURL
 	if input.ImageURL != "" {
+		// Only update if a new non-empty value is provided
 		pkg.ImageURL = input.ImageURL
+	} else {
+		// Preserve existing ImageURL if not provided in input
+		// This ensures image_url is never lost during updates or migrations
+		pkg.ImageURL = existingImageURL
 	}
-	// If ImageURL is empty string in input, we don't update it to preserve existing image
-	// This prevents accidentally clearing the image_url when updating other fields
-	// IMPORTANT: image_url is preserved if not provided or if empty string is sent
 
-	if err := config.DB.Save(&pkg).Error; err != nil {
+	// Use Save with explicit field selection to ensure image_url is always preserved
+	// This prevents GORM from accidentally clearing fields during migration
+	// The Select ensures only specified fields are updated, preserving image_url
+	if err := config.DB.Model(&pkg).Select(
+		"name_id", "name_en", "description_id", "description_en",
+		"capacity", "duration", "is_popular", "image_url",
+		"routes_id", "routes_en", "features_id", "features_en",
+		"includes_id", "includes_en", "excludes_id", "excludes_en",
+		"name", "description", "routes", "features", "includes", "excludes",
+	).Updates(&pkg).Error; err != nil {
+		utils.APIError(c, http.StatusInternalServerError, "Gagal mengupdate database: "+err.Error())
+		return
+	}
+
+	// Reload the package to get the updated data
+	if err := config.DB.First(&pkg, id).Error; err != nil {
 		utils.APIError(c, http.StatusInternalServerError, "Gagal mengupdate database: "+err.Error())
 		return
 	}
