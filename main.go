@@ -10,10 +10,22 @@ import (
 )
 
 func main() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Println("Error loading .env file")
+	// Load .env hanya untuk development
+	// Di production, gunakan environment variables dari platform
+	if os.Getenv("ENV") != "production" {
+		err := godotenv.Load()
+		if err != nil {
+			log.Println("⚠️  .env file not found (this is OK in production)")
+		}
 	}
+	
+	// Validasi API_SECRET
+	apiSecret := os.Getenv("API_SECRET")
+	if apiSecret == "" {
+		log.Fatal("❌ API_SECRET environment variable is required!")
+	}
+	log.Println("✅ API_SECRET configured")
+	
 	config.ConnectDatabase()
 
 	r := routes.SetupRouter()
@@ -22,5 +34,9 @@ func main() {
 	if port == "" {
 		port = "8080"
 	}
-	r.Run(":" + port)
+	
+	log.Printf("🚀 Server starting on port %s", port)
+	if err := r.Run(":" + port); err != nil {
+		log.Fatalf("❌ Server failed to start: %v", err)
+	}
 }

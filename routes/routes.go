@@ -26,7 +26,7 @@ func SetupRouter() *gin.Engine {
 	api := r.Group("/api")
 	{
 		// Auth Routes (Public)
-		// api.POST("/auth/register", controllers.Register) // Dinonaktifkan untuk keamanan - gunakan hanya untuk membuat admin pertama
+		api.POST("/auth/register", controllers.Register) // Aktifkan sementara untuk membuat admin pertama
 		api.POST("/auth/login", controllers.Login)
 
 		// Public Package Routes

@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"errors"
 	"os"
 	"time"
 
@@ -8,13 +9,18 @@ import (
 )
 
 func GenerateToken(user_id uint) (string, error) {
+	apiSecret := os.Getenv("API_SECRET")
+	if apiSecret == "" {
+		return "", errors.New("API_SECRET environment variable is not set")
+	}
+	
 	claims := jwt.MapClaims{}
 	claims["authorized"] = true
 	claims["user_id"] = user_id
 	claims["exp"] = time.Now().Add(time.Hour * 24).Unix() // Token berlaku 24 jam
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString([]byte(os.Getenv("API_SECRET")))
+	return token.SignedString([]byte(apiSecret))
 }
 
 func ValidateToken(tokenString string) (*jwt.Token, error) {

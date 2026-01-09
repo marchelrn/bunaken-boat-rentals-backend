@@ -25,13 +25,13 @@ func Register(c *gin.Context) {
 	var input RegisterInput
 
 	if err := c.ShouldBindJSON(&input); err != nil {
-		utils.APIError(c, http.StatusBadRequest, err.Error())
+		utils.APIError(c, http.StatusBadRequest, "Format JSON salah: "+err.Error())
 		return
 	}
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(input.Password), bcrypt.DefaultCost)
 	if err != nil {
-		utils.APIError(c, http.StatusInternalServerError, "Gagal mengenkripsi password")
+		utils.APIError(c, http.StatusInternalServerError, "Gagal mengenkripsi password: "+err.Error())
 		return
 	}
 
@@ -42,7 +42,12 @@ func Register(c *gin.Context) {
 	}
 
 	if err := config.DB.Create(&user).Error; err != nil {
-		utils.APIError(c, http.StatusBadRequest, "Username mungkin sudah digunakan")
+		// Check if it's a duplicate username error
+		if err.Error() != "" {
+			utils.APIError(c, http.StatusBadRequest, "Username mungkin sudah digunakan: "+err.Error())
+		} else {
+			utils.APIError(c, http.StatusBadRequest, "Username mungkin sudah digunakan")
+		}
 		return
 	}
 
