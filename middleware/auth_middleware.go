@@ -18,7 +18,6 @@ func JwtAuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		// Format header harus "Bearer <token>"
 		tokenString := strings.Split(authHeader, " ")
 		if len(tokenString) != 2 {
 			utils.APIError(c, http.StatusUnauthorized, "Format token salah")
@@ -35,7 +34,6 @@ func JwtAuthMiddleware() gin.HandlerFunc {
 		
 		claims, ok := token.Claims.(jwt.MapClaims)
 		if ok && token.Valid {
-			// Simpan user_id ke context jika butuh
 			userId := uint(claims["user_id"].(float64))
 			c.Set("user_id", userId)
 		}

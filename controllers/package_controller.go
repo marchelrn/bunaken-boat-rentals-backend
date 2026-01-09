@@ -16,13 +16,11 @@ func GetAllPackages(c *gin.Context) {
 		return
 	}
 	
-	// Get language parameter (default: "id")
 	lang := c.DefaultQuery("lang", "id")
 	if lang != "id" && lang != "en" {
 		lang = "id"
 	}
 	
-		// Transform packages based on language
 	transformedPackages := make([]map[string]interface{}, len(packages))
 	for i, pkg := range packages {
 		pkgMap := map[string]interface{}{
@@ -118,7 +116,6 @@ func GetAllPackages(c *gin.Context) {
 			}
 		}
 		
-		// Transform routes to match frontend format
 		var routes []models.RouteDetail
 		if lang == "en" {
 			if len(pkg.RoutesEN) > 0 {
@@ -126,7 +123,6 @@ func GetAllPackages(c *gin.Context) {
 			} else if len(pkg.RoutesID) > 0 {
 				routes = pkg.RoutesID
 			} else if len(pkg.Routes) > 0 {
-				// Legacy fallback
 				routes = pkg.Routes
 			} else {
 				routes = []models.RouteDetail{}
@@ -135,15 +131,12 @@ func GetAllPackages(c *gin.Context) {
 			if len(pkg.RoutesID) > 0 {
 				routes = pkg.RoutesID
 			} else if len(pkg.Routes) > 0 {
-				// Legacy fallback - use old Routes field
 				routes = pkg.Routes
 			} else {
 				routes = []models.RouteDetail{}
 			}
 		}
 		
-		// Transform routes to match frontend format
-		// For main page display, use simplified format
 		transformedRoutes := make([]map[string]string, len(routes))
 		for j, route := range routes {
 			routeMap := map[string]string{
@@ -168,8 +161,6 @@ func GetAllPackages(c *gin.Context) {
 		}
 		pkgMap["routes"] = transformedRoutes
 		
-		// Also include full route details for admin dashboard
-		// Transform RoutesID and RoutesEN to include name_id and name_en
 		transformedRoutesID := make([]map[string]interface{}, len(pkg.RoutesID))
 		for j, route := range pkg.RoutesID {
 			transformedRoutesID[j] = map[string]interface{}{
@@ -206,13 +197,11 @@ func GetPackageByID(c *gin.Context) {
 		return
 	}
 
-	// Get language parameter (default: "id")
 	lang := c.DefaultQuery("lang", "id")
 	if lang != "id" && lang != "en" {
 		lang = "id"
 	}
 	
-	// Transform package based on language
 	pkgMap := map[string]interface{}{
 		"ID":          pkg.ID,
 		"CreatedAt":   pkg.CreatedAt,
@@ -224,7 +213,6 @@ func GetPackageByID(c *gin.Context) {
 		"image_url":   pkg.ImageURL,
 	}
 	
-	// Set language-specific fields with fallback
 	var routes []models.RouteDetail
 	if lang == "en" {
 		if pkg.NameEN != "" {
@@ -261,10 +249,8 @@ func GetPackageByID(c *gin.Context) {
 		if pkg.NameID != "" {
 			pkgMap["name"] = pkg.NameID
 		} else if pkg.Name != "" {
-			// Legacy fallback
 			pkgMap["name"] = pkg.Name
 		} else if pkg.Description != "" {
-			// If name is empty but description exists, use description as name
 			pkgMap["name"] = pkg.Description
 		} else {
 			pkgMap["name"] = ""
@@ -272,7 +258,6 @@ func GetPackageByID(c *gin.Context) {
 		if pkg.DescriptionID != "" {
 			pkgMap["description"] = pkg.DescriptionID
 		} else if pkg.Description != "" {
-			// Legacy fallback
 			pkgMap["description"] = pkg.Description
 		} else {
 			pkgMap["description"] = ""
@@ -280,7 +265,6 @@ func GetPackageByID(c *gin.Context) {
 		if len(pkg.RoutesID) > 0 {
 			routes = pkg.RoutesID
 		} else if len(pkg.Routes) > 0 {
-			// Legacy fallback
 			routes = pkg.Routes
 		} else {
 			routes = []models.RouteDetail{}
@@ -288,7 +272,6 @@ func GetPackageByID(c *gin.Context) {
 		if len(pkg.FeaturesID) > 0 {
 			pkgMap["features"] = pkg.FeaturesID
 		} else if len(pkg.Features) > 0 {
-			// Legacy fallback
 			pkgMap["features"] = pkg.Features
 		} else {
 			pkgMap["features"] = []string{}
@@ -296,7 +279,6 @@ func GetPackageByID(c *gin.Context) {
 		if len(pkg.IncludesID) > 0 {
 			pkgMap["includes"] = pkg.IncludesID
 		} else if len(pkg.Includes) > 0 {
-			// Legacy fallback
 			pkgMap["includes"] = pkg.Includes
 		} else {
 			pkgMap["includes"] = []string{}
@@ -304,14 +286,12 @@ func GetPackageByID(c *gin.Context) {
 		if len(pkg.ExcludesID) > 0 {
 			pkgMap["excludes"] = pkg.ExcludesID
 		} else if len(pkg.Excludes) > 0 {
-			// Legacy fallback
 			pkgMap["excludes"] = pkg.Excludes
 		} else {
 			pkgMap["excludes"] = []string{}
 		}
 	}
 	
-	// Transform routes to match frontend format
 	transformedRoutes := make([]map[string]string, len(routes))
 	for j, route := range routes {
 		routeMap := map[string]string{
@@ -345,16 +325,12 @@ func CreatePackage(c *gin.Context) {
 		return
 	}
 
-	// Ensure multi-language fields are set from legacy fields if needed
-	// If NameID is empty but Name is provided, use Name as NameID
 	if input.NameID == "" && input.Name != "" {
 		input.NameID = input.Name
 	}
-	// If DescriptionID is empty but Description is provided, use Description as DescriptionID
 	if input.DescriptionID == "" && input.Description != "" {
 		input.DescriptionID = input.Description
 	}
-	// If RoutesID is empty but Routes is provided, convert Routes to RoutesID
 	if len(input.RoutesID) == 0 && len(input.Routes) > 0 {
 		convertedRoutes := make([]models.RouteDetail, len(input.Routes))
 		for i, r := range input.Routes {
@@ -372,20 +348,16 @@ func CreatePackage(c *gin.Context) {
 		}
 		input.RoutesID = convertedRoutes
 	}
-	// If FeaturesID is empty but Features is provided, use Features as FeaturesID
 	if len(input.FeaturesID) == 0 && len(input.Features) > 0 {
 		input.FeaturesID = input.Features
 	}
-	// If IncludesID is empty but Includes is provided, use Includes as IncludesID
 	if len(input.IncludesID) == 0 && len(input.Includes) > 0 {
 		input.IncludesID = input.Includes
 	}
-	// If ExcludesID is empty but Excludes is provided, use Excludes as ExcludesID
 	if len(input.ExcludesID) == 0 && len(input.Excludes) > 0 {
 		input.ExcludesID = input.Excludes
 	}
 	
-	// Ensure legacy fields are set for backward compatibility
 	if input.Name == "" && input.NameID != "" {
 		input.Name = input.NameID
 	}
@@ -393,7 +365,6 @@ func CreatePackage(c *gin.Context) {
 		input.Description = input.DescriptionID
 	}
 	if len(input.Routes) == 0 && len(input.RoutesID) > 0 {
-		// Convert RoutesID to Routes for legacy support
 		input.Routes = input.RoutesID
 	}
 	if len(input.Features) == 0 && len(input.FeaturesID) > 0 {
@@ -406,10 +377,8 @@ func CreatePackage(c *gin.Context) {
 		input.Excludes = input.ExcludesID
 	}
 	
-	// CRITICAL: Ensure ImageURL has a default value if empty
-	// This prevents image_url from being NULL in the database
 	if input.ImageURL == "" {
-		input.ImageURL = "" // Explicitly set to empty string (not NULL)
+		input.ImageURL = ""
 	}
 
 	result := config.DB.Create(&input)
@@ -424,31 +393,22 @@ func UpdatePackage(c *gin.Context) {
 	id := c.Param("id")
 	var pkg models.Package
 
-	// 1. Cari dulu apakah ada
 	if err := config.DB.First(&pkg, id).Error; err != nil {
 		utils.APIError(c, http.StatusNotFound, "Package tidak ditemukan")
 		return
 	}
 
-	// 2. Bind JSON baru ke variabel input
 	var input models.Package
 	if err := c.ShouldBindJSON(&input); err != nil {
 		utils.APIError(c, http.StatusBadRequest, "Format JSON salah: "+err.Error())
 		return
 	}
 
-	// 3. Update multi-language fields (always update, even if empty)
-	// Check if field is present in JSON by checking if it's explicitly set
-	// For now, we'll update if provided (non-zero value) or if explicitly set to empty
-	
-	// Update multi-language fields - always update if provided
-	// Always update these fields if they are in the input
 	pkg.NameID = input.NameID
 	pkg.NameEN = input.NameEN
 	pkg.DescriptionID = input.DescriptionID
 	pkg.DescriptionEN = input.DescriptionEN
 	
-	// Update arrays - always replace if provided (even if empty array)
 	if input.RoutesID != nil {
 		pkg.RoutesID = input.RoutesID
 	}
@@ -474,23 +434,19 @@ func UpdatePackage(c *gin.Context) {
 		pkg.ExcludesEN = input.ExcludesEN
 	}
 	
-	// Legacy fields for backward compatibility
 	if input.Name != "" {
 		pkg.Name = input.Name
-		// If NameID is empty, use Name as NameID
 		if pkg.NameID == "" {
 			pkg.NameID = input.Name
 		}
 	}
 	if input.Description != "" {
 		pkg.Description = input.Description
-		// If DescriptionID is empty, use Description as DescriptionID
 		if pkg.DescriptionID == "" {
 			pkg.DescriptionID = input.Description
 		}
 	}
 	if len(input.Routes) > 0 {
-		// Convert Routes to RoutesID if RoutesID is empty
 		if len(pkg.RoutesID) == 0 && len(input.Routes) > 0 {
 			convertedRoutes := make([]models.RouteDetail, len(input.Routes))
 			for i, r := range input.Routes {
@@ -513,21 +469,18 @@ func UpdatePackage(c *gin.Context) {
 		}
 	}
 	if len(input.Features) > 0 {
-		// If FeaturesID is empty, use Features as FeaturesID
 		if len(pkg.FeaturesID) == 0 {
 			pkg.FeaturesID = input.Features
 		}
 		pkg.Features = input.Features
 	}
 	if len(input.Excludes) > 0 {
-		// If ExcludesID is empty, use Excludes as ExcludesID
 		if len(pkg.ExcludesID) == 0 {
 			pkg.ExcludesID = input.Excludes
 		}
 		pkg.Excludes = input.Excludes
 	}
 	
-	// Common fields (always update)
 	if input.Capacity != "" {
 		pkg.Capacity = input.Capacity
 	}
@@ -536,21 +489,13 @@ func UpdatePackage(c *gin.Context) {
 	}
 	pkg.IsPopular = input.IsPopular
 	
-	// CRITICAL: Preserve ImageURL - only update if explicitly provided and not empty
-	// Save existing ImageURL before any updates to prevent loss during migration
 	existingImageURL := pkg.ImageURL
 	if input.ImageURL != "" {
-		// Only update if a new non-empty value is provided
 		pkg.ImageURL = input.ImageURL
 	} else {
-		// Preserve existing ImageURL if not provided in input
-		// This ensures image_url is never lost during updates or migrations
 		pkg.ImageURL = existingImageURL
 	}
 
-	// Use Save with explicit field selection to ensure image_url is always preserved
-	// This prevents GORM from accidentally clearing fields during migration
-	// The Select ensures only specified fields are updated, preserving image_url
 	if err := config.DB.Model(&pkg).Select(
 		"name_id", "name_en", "description_id", "description_en",
 		"capacity", "duration", "is_popular", "image_url",
@@ -562,7 +507,6 @@ func UpdatePackage(c *gin.Context) {
 		return
 	}
 
-	// Reload the package to get the updated data
 	if err := config.DB.First(&pkg, id).Error; err != nil {
 		utils.APIError(c, http.StatusInternalServerError, "Gagal mengupdate database: "+err.Error())
 		return

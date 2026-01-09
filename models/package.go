@@ -10,11 +10,9 @@ type RouteDetail struct {
 
 type Package struct {
 	gorm.Model
-	// Legacy fields (for backward compatibility with existing data)
 	Name        string        `json:"name" gorm:"column:name"`
 	Description string        `json:"description" gorm:"column:description"`
 	
-	// Multi-language fields
 	NameID        string        `json:"name_id" gorm:"column:name_id"`
 	NameEN        string        `json:"name_en" gorm:"column:name_en"`
 	DescriptionID string        `json:"description_id" gorm:"column:description_id"`
@@ -24,7 +22,6 @@ type Package struct {
 	IsPopular     bool          `json:"is_popular"`
 	ImageURL      string        `json:"image_url" gorm:"column:image_url;type:varchar(500);default:''"` 
 	
-	// JSON DB - Multi-language
 	RoutesID   []RouteDetail `json:"routes_id" gorm:"serializer:json;column:routes_id"`
 	RoutesEN   []RouteDetail `json:"routes_en" gorm:"serializer:json;column:routes_en"`
 	FeaturesID []string      `json:"features_id" gorm:"serializer:json;column:features_id"`
@@ -34,7 +31,6 @@ type Package struct {
 	ExcludesID []string      `json:"excludes_id" gorm:"serializer:json;column:excludes_id"`
 	ExcludesEN []string      `json:"excludes_en" gorm:"serializer:json;column:excludes_en"`
 	
-	// Legacy JSON fields (for backward compatibility)
 	Routes      []RouteDetail `json:"routes,omitempty" gorm:"serializer:json;column:routes"`
 	Features    []string      `json:"features,omitempty" gorm:"serializer:json;column:features"`
 	Includes    []string      `json:"includes,omitempty" gorm:"serializer:json;column:includes"`

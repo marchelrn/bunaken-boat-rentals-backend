@@ -51,7 +51,6 @@ func GetAllAddOns(c *gin.Context) {
 				addOnMap["description"] = addOn.Description
 			}
 		} else {
-			// Default to ID
 			if addOn.NameID != "" {
 				addOnMap["name"] = addOn.NameID
 			} else if addOn.NameEN != "" {

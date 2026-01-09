@@ -18,22 +18,20 @@ func ConnectDatabase() {
 	dsn := os.Getenv("DATABASE_URL")
 	
 	if dsn == "" {
-		log.Println("📝 DATABASE_URL not found, using individual DB_* variables...")
-		
-		// Ambil sslmode dari env, default require untuk production
+		log.Println("DATABASE_URL not found, using individual DB_* variables...")
+
 		sslMode := os.Getenv("DB_SSLMODE")
 		if sslMode == "" {
-			// Jika DB_HOST bukan localhost, assume production
 			dbHost := os.Getenv("DB_HOST")
 			if dbHost != "localhost" && dbHost != "127.0.0.1" && dbHost != "" {
 				sslMode = "require"
-				log.Println("📝 Production mode detected, using sslmode=require")
+				log.Println("Production mode detected, using sslmode=require")
 			} else {
 				sslMode = "disable"
-				log.Println("📝 Development mode detected, using sslmode=disable")
+				log.Println("Development mode detected, using sslmode=disable")
 			}
 		} else {
-			log.Printf("📝 Using DB_SSLMODE from environment: %s", sslMode)
+			log.Printf("Using DB_SSLMODE from environment: %s", sslMode)
 		}
 		
 		dbHost := os.Getenv("DB_HOST")

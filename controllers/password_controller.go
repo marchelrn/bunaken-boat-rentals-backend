@@ -16,7 +16,6 @@ type ChangePasswordInput struct {
 }
 
 func ChangePassword(c *gin.Context) {
-	// Get user ID from JWT token (set by middleware)
 	userID, exists := c.Get("user_id")
 	if !exists {
 		utils.APIError(c, http.StatusUnauthorized, "User ID tidak ditemukan")
@@ -29,27 +28,23 @@ func ChangePassword(c *gin.Context) {
 		return
 	}
 
-	// Get user from database
 	var user models.User
 	if err := config.DB.First(&user, userID).Error; err != nil {
 		utils.APIError(c, http.StatusNotFound, "User tidak ditemukan")
 		return
 	}
 
-	// Verify old password
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(input.OldPassword)); err != nil {
 		utils.APIError(c, http.StatusBadRequest, "Password lama salah")
 		return
 	}
 
-	// Hash new password
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(input.NewPassword), bcrypt.DefaultCost)
 	if err != nil {
 		utils.APIError(c, http.StatusInternalServerError, "Gagal mengenkripsi password baru")
 		return
 	}
 
-	// Update password
 	user.Password = string(hashedPassword)
 	if err := config.DB.Save(&user).Error; err != nil {
 		utils.APIError(c, http.StatusInternalServerError, "Gagal mengupdate password: "+err.Error())

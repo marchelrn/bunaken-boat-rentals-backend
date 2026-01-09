@@ -42,7 +42,6 @@ func Register(c *gin.Context) {
 	}
 
 	if err := config.DB.Create(&user).Error; err != nil {
-		// Check if it's a duplicate username error
 		if err.Error() != "" {
 			utils.APIError(c, http.StatusBadRequest, "Username mungkin sudah digunakan: "+err.Error())
 		} else {
@@ -73,7 +72,6 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	// Generate Token
 	token, err := utils.GenerateToken(user.ID)
 	if err != nil {
 		utils.APIError(c, http.StatusInternalServerError, "Gagal generate token")
