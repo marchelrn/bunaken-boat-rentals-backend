@@ -42,13 +42,13 @@ func ConnectDatabase() {
 		dbName := os.Getenv("DB_NAME")
 		dbPort := os.Getenv("DB_PORT")
 		
-		log.Printf("🔍 DB_HOST: %s", dbHost)
-		log.Printf("🔍 DB_USER: %s", dbUser)
-		log.Printf("🔍 DB_NAME: %s", dbName)
-		log.Printf("🔍 DB_PORT: %s", dbPort)
+		log.Printf("DB_HOST: %s", dbHost)
+		log.Printf("DB_USER: %s", dbUser)
+		log.Printf("DB_NAME: %s", dbName)
+		log.Printf("DB_PORT: %s", dbPort)
 		
 		if dbHost == "" || dbUser == "" || dbPassword == "" || dbName == "" || dbPort == "" {
-			log.Println("❌ Missing database configuration:")
+			log.Println("Missing database configuration:")
 			if dbHost == "" {
 				log.Println("   - DB_HOST is missing")
 			}
@@ -64,7 +64,7 @@ func ConnectDatabase() {
 			if dbPort == "" {
 				log.Println("   - DB_PORT is missing")
 			}
-			log.Fatal("❌ Please set DATABASE_URL or all DB_* environment variables (DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT)")
+			log.Fatal(" Please set DATABASE_URL or all DB_* environment variables (DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT)")
 		}
 		
 		dsn = fmt.Sprintf(
@@ -76,28 +76,28 @@ func ConnectDatabase() {
 			dbPort,
 			sslMode,
 		)
-		log.Println("✅ Database connection string built from individual variables")
+		log.Println(" Database connection string built from individual variables")
 	} else {
-		log.Println("✅ DATABASE_URL found")
+		log.Println(" DATABASE_URL found")
 	}
 	
-	log.Println("🔄 Connecting to database...")
+	log.Println(" Connecting to database...")
 	
 	database, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		log.Fatalf("❌ Database connection failed: %v", err)
+		log.Fatalf(" Database connection failed: %v", err)
 	}
 	
-	log.Println("✅ Database connected successfully")
-	log.Println("🔄 Running database migrations...")
+	log.Println(" Database connected successfully")
+	log.Println(" Running database migrations...")
 	
 	// AutoMigrate
 	if err := database.AutoMigrate(&models.Package{}, &models.User{}, &models.AddOn{}); err != nil {
-		log.Fatalf("❌ Migration failed: %v", err)
+		log.Fatalf(" Migration failed: %v", err)
 	}
 	
-	log.Println("✅ Database migrations completed successfully")
-	log.Println("📊 Tables created/verified: packages, users, addons")
+	log.Println("Database migrations completed successfully")
+	log.Println("Tables created/verified: packages, users, addons")
 
 	DB = database
 }
