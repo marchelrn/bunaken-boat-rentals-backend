@@ -16,8 +16,11 @@ func SetupRouter() *gin.Engine {
 	r.Static("/uploads", "/uploads")
 
 	config := cors.DefaultConfig()
-	config.AllowAllOrigins = true 
-	config.AllowHeaders = []string{"Origin", "Content-Length", "Content-Type", "Authorization"}
+	config.AllowAllOrigins = true
+	config.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"}
+	config.AllowHeaders = []string{"Origin", "Content-Length", "Content-Type", "Authorization", "Accept", "X-Requested-With"}
+	config.AllowCredentials = true
+	config.ExposeHeaders = []string{"Content-Length", "Content-Type"}
 	r.Use(cors.New(config))
 
 	api := r.Group("/api")
