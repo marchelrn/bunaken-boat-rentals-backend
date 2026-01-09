@@ -58,12 +58,29 @@ func UploadPackageImage(c *gin.Context) {
 	apiKey := os.Getenv("CLOUDINARY_API_KEY")
 	apiSecret := os.Getenv("CLOUDINARY_API_SECRET")
 
-	// If Cloudinary is not configured, fallback to local storage
+	// Check if we're in production (Leapcell doesn't have writable filesystem)
+	isProduction := os.Getenv("ENV") == "production" || os.Getenv("PORT") != ""
+
+	// If Cloudinary is not configured
 	if cloudName == "" || apiKey == "" || apiSecret == "" {
-		// Fallback to local storage
+		// In production, Cloudinary is required
+		if isProduction {
+			utils.APIError(c, http.StatusInternalServerError, "Cloudinary tidak dikonfigurasi. Silakan set environment variables: CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET")
+			return
+		}
+
+		// Fallback to local storage only for development
+		// Use temp directory or current directory
 		uploadDir := "./uploads/packages"
+		
+		// Try to use temp directory if current directory fails
+		if _, err := os.Stat("."); err != nil {
+			tempDir := os.TempDir()
+			uploadDir = filepath.Join(tempDir, "uploads", "packages")
+		}
+
 		if err := os.MkdirAll(uploadDir, 0755); err != nil {
-			utils.APIError(c, http.StatusInternalServerError, "Gagal membuat direktori upload: "+err.Error())
+			utils.APIError(c, http.StatusInternalServerError, "Gagal membuat direktori upload. Untuk production, silakan konfigurasi Cloudinary: "+err.Error())
 			return
 		}
 
@@ -75,7 +92,7 @@ func UploadPackageImage(c *gin.Context) {
 		// Save the file locally
 		dst, err := os.Create(filePath)
 		if err != nil {
-			utils.APIError(c, http.StatusInternalServerError, "Gagal menyimpan file: "+err.Error())
+			utils.APIError(c, http.StatusInternalServerError, "Gagal menyimpan file. Untuk production, silakan konfigurasi Cloudinary: "+err.Error())
 			return
 		}
 		defer dst.Close()
@@ -93,7 +110,7 @@ func UploadPackageImage(c *gin.Context) {
 		// Return the URL (relative path)
 		imageURL := fmt.Sprintf("/uploads/packages/%s", filename)
 
-		utils.APIResponse(c, http.StatusOK, "Gambar berhasil diupload (local storage)", gin.H{
+		utils.APIResponse(c, http.StatusOK, "Gambar berhasil diupload (local storage - development only)", gin.H{
 			"image_url": imageURL,
 			"filename":  filename,
 		})
