@@ -32,11 +32,9 @@ func GetAllPackages(c *gin.Context) {
 			"duration":    pkg.Duration,
 			"is_popular":  pkg.IsPopular,
 			"image_url":   pkg.ImageURL,
-			"name_id":        pkg.NameID,
-			"name_en":        pkg.NameEN,
-			"description_id": pkg.DescriptionID,
-			"description_en": pkg.DescriptionEN,
-			"routes_id":      pkg.RoutesID,
+			"name_id":   pkg.NameID,
+			"name_en":   pkg.NameEN,
+			"routes_id": pkg.RoutesID,
 			"routes_en":      pkg.RoutesEN,
 			"features_id":    pkg.FeaturesID,
 			"features_en":    pkg.FeaturesEN,
@@ -45,7 +43,6 @@ func GetAllPackages(c *gin.Context) {
 			"excludes_id":    pkg.ExcludesID,
 			"excludes_en":    pkg.ExcludesEN,
 			"name":        pkg.Name,
-			"description": pkg.Description,
 			"routes":      pkg.Routes,
 			"features":    pkg.Features,
 			"includes":    pkg.Includes,
@@ -57,11 +54,6 @@ func GetAllPackages(c *gin.Context) {
 				pkgMap["name"] = pkg.NameEN
 			} else {
 				pkgMap["name"] = pkg.NameID
-			}
-			if pkg.DescriptionEN != "" {
-				pkgMap["description"] = pkg.DescriptionEN
-			} else {
-				pkgMap["description"] = pkg.DescriptionID
 			}
 			if len(pkg.RoutesEN) > 0 {
 				pkgMap["routes"] = pkg.RoutesEN
@@ -88,17 +80,8 @@ func GetAllPackages(c *gin.Context) {
 				pkgMap["name"] = pkg.NameID
 			} else if pkg.Name != "" {
 				pkgMap["name"] = pkg.Name	
-			} else if pkg.Description != "" {
-					pkgMap["name"] = pkg.Description
 			} else {
 				pkgMap["name"] = ""
-			}
-			if pkg.DescriptionID != "" {
-				pkgMap["description"] = pkg.DescriptionID
-			} else if pkg.Description != "" {
-				pkgMap["description"] = pkg.Description
-			} else {
-				pkgMap["description"] = ""
 			}
 			if len(pkg.FeaturesID) > 0 {
 				pkgMap["features"] = pkg.FeaturesID
@@ -220,11 +203,6 @@ func GetPackageByID(c *gin.Context) {
 		} else {
 			pkgMap["name"] = pkg.NameID
 		}
-		if pkg.DescriptionEN != "" {
-			pkgMap["description"] = pkg.DescriptionEN
-		} else {
-			pkgMap["description"] = pkg.DescriptionID
-		}
 		if len(pkg.RoutesEN) > 0 {
 			routes = pkg.RoutesEN
 		} else {
@@ -250,17 +228,8 @@ func GetPackageByID(c *gin.Context) {
 			pkgMap["name"] = pkg.NameID
 		} else if pkg.Name != "" {
 			pkgMap["name"] = pkg.Name
-		} else if pkg.Description != "" {
-			pkgMap["name"] = pkg.Description
 		} else {
 			pkgMap["name"] = ""
-		}
-		if pkg.DescriptionID != "" {
-			pkgMap["description"] = pkg.DescriptionID
-		} else if pkg.Description != "" {
-			pkgMap["description"] = pkg.Description
-		} else {
-			pkgMap["description"] = ""
 		}
 		if len(pkg.RoutesID) > 0 {
 			routes = pkg.RoutesID
@@ -328,9 +297,6 @@ func CreatePackage(c *gin.Context) {
 	if input.NameID == "" && input.Name != "" {
 		input.NameID = input.Name
 	}
-	if input.DescriptionID == "" && input.Description != "" {
-		input.DescriptionID = input.Description
-	}
 	if len(input.RoutesID) == 0 && len(input.Routes) > 0 {
 		convertedRoutes := make([]models.RouteDetail, len(input.Routes))
 		for i, r := range input.Routes {
@@ -360,9 +326,6 @@ func CreatePackage(c *gin.Context) {
 	
 	if input.Name == "" && input.NameID != "" {
 		input.Name = input.NameID
-	}
-	if input.Description == "" && input.DescriptionID != "" {
-		input.Description = input.DescriptionID
 	}
 	if len(input.Routes) == 0 && len(input.RoutesID) > 0 {
 		input.Routes = input.RoutesID
@@ -406,8 +369,6 @@ func UpdatePackage(c *gin.Context) {
 
 	pkg.NameID = input.NameID
 	pkg.NameEN = input.NameEN
-	pkg.DescriptionID = input.DescriptionID
-	pkg.DescriptionEN = input.DescriptionEN
 	
 	if input.RoutesID != nil {
 		pkg.RoutesID = input.RoutesID
@@ -438,12 +399,6 @@ func UpdatePackage(c *gin.Context) {
 		pkg.Name = input.Name
 		if pkg.NameID == "" {
 			pkg.NameID = input.Name
-		}
-	}
-	if input.Description != "" {
-		pkg.Description = input.Description
-		if pkg.DescriptionID == "" {
-			pkg.DescriptionID = input.Description
 		}
 	}
 	if len(input.Routes) > 0 {
@@ -497,11 +452,10 @@ func UpdatePackage(c *gin.Context) {
 	}
 
 	if err := config.DB.Model(&pkg).Select(
-		"name_id", "name_en", "description_id", "description_en",
-		"capacity", "duration", "is_popular", "image_url",
+		"name_id", "name_en", "capacity", "duration", "is_popular", "image_url",
 		"routes_id", "routes_en", "features_id", "features_en",
 		"includes_id", "includes_en", "excludes_id", "excludes_en",
-		"name", "description", "routes", "features", "includes", "excludes",
+		"name", "routes", "features", "includes", "excludes",
 	).Updates(&pkg).Error; err != nil {
 		utils.APIError(c, http.StatusInternalServerError, "Gagal mengupdate database: "+err.Error())
 		return

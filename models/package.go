@@ -10,14 +10,11 @@ type RouteDetail struct {
 
 type Package struct {
 	gorm.Model
-	Name        string        `json:"name" gorm:"column:name"`
-	Description string        `json:"description" gorm:"column:description"`
+	Name   string `json:"name" gorm:"column:name"`
 	
-	NameID        string        `json:"name_id" gorm:"column:name_id"`
-	NameEN        string        `json:"name_en" gorm:"column:name_en"`
-	DescriptionID string        `json:"description_id" gorm:"column:description_id"`
-	DescriptionEN string        `json:"description_en" gorm:"column:description_en"`
-	Capacity      string        `json:"capacity"`
+	NameID   string `json:"name_id" gorm:"column:name_id"`
+	NameEN   string `json:"name_en" gorm:"column:name_en"`
+	Capacity string `json:"capacity"`
 	Duration      string        `json:"duration"`
 	IsPopular     bool          `json:"is_popular"`
 	ImageURL      string        `json:"image_url" gorm:"column:image_url;type:varchar(500);default:''"` 
