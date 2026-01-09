@@ -21,7 +21,6 @@ func GetAllAddOns(c *gin.Context) {
 		return
 	}
 
-	// Transform add-ons based on language
 	transformedAddOns := make([]map[string]interface{}, len(addOns))
 	for i, addOn := range addOns {
 		addOnMap := map[string]interface{}{
@@ -30,14 +29,12 @@ func GetAllAddOns(c *gin.Context) {
 			"UpdatedAt":   addOn.UpdatedAt,
 			"DeletedAt":   addOn.DeletedAt,
 			"price":      addOn.Price,
-			// Include all multi-language fields for admin dashboard
 			"name_id":        addOn.NameID,
 			"name_en":        addOn.NameEN,
 			"description_id": addOn.DescriptionID,
 			"description_en": addOn.DescriptionEN,
 		}
 
-		// For public API, return language-specific fields
 		if lang == "en" {
 			if addOn.NameEN != "" {
 				addOnMap["name"] = addOn.NameEN
@@ -97,7 +94,6 @@ func CreateAddOn(c *gin.Context) {
 		return
 	}
 
-	// Set legacy fields from multi-language fields if needed
 	if input.Name == "" {
 		if input.NameID != "" {
 			input.Name = input.NameID
@@ -113,7 +109,6 @@ func CreateAddOn(c *gin.Context) {
 		}
 	}
 
-	// Ensure multi-language fields are set from legacy fields if needed
 	if input.NameID == "" && input.Name != "" {
 		input.NameID = input.Name
 	}
@@ -150,10 +145,8 @@ func UpdateAddOn(c *gin.Context) {
 		return
 	}
 
-	// Update price (always required)
 	addOn.Price = input.Price
 
-	// Update multi-language fields if provided
 	if input.NameID != "" {
 		addOn.NameID = input.NameID
 	}
@@ -167,11 +160,9 @@ func UpdateAddOn(c *gin.Context) {
 		addOn.DescriptionEN = input.DescriptionEN
 	}
 
-	// Update legacy fields if provided, or set from multi-language fields
 	if input.Name != "" {
 		addOn.Name = input.Name
 	} else {
-		// Set legacy field from multi-language fields if not provided
 		if addOn.NameID != "" {
 			addOn.Name = addOn.NameID
 		} else if addOn.NameEN != "" {
@@ -182,7 +173,6 @@ func UpdateAddOn(c *gin.Context) {
 	if input.Description != "" {
 		addOn.Description = input.Description
 	} else {
-		// Set legacy field from multi-language fields if not provided
 		if addOn.DescriptionID != "" {
 			addOn.Description = addOn.DescriptionID
 		} else if addOn.DescriptionEN != "" {

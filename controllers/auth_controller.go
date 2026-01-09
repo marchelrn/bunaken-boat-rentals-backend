@@ -29,7 +29,6 @@ func Register(c *gin.Context) {
 		return
 	}
 
-	// Hash password
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(input.Password), bcrypt.DefaultCost)
 	if err != nil {
 		utils.APIError(c, http.StatusInternalServerError, "Gagal mengenkripsi password")
@@ -59,13 +58,11 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	// Cari user berdasarkan username
 	if err := config.DB.Where("username = ?", input.Username).First(&user).Error; err != nil {
 		utils.APIError(c, http.StatusBadRequest, "Username atau password salah")
 		return
 	}
-
-	// Cek password
+	
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(input.Password)); err != nil {
 		utils.APIError(c, http.StatusBadRequest, "Username atau password salah")
 		return

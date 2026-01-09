@@ -10,8 +10,7 @@ import (
 )
 
 func GetAllPackages(c *gin.Context) {
-	packages := []models.Package{} // Inisialisasi sebagai empty slice
-	// Preload features or other relations if necessary, but currently they are JSON fields
+	packages := []models.Package{} 
 	if err := config.DB.Find(&packages).Error; err != nil {
 		utils.APIError(c, http.StatusInternalServerError, "Gagal Mengambil database")
 		return
@@ -35,7 +34,6 @@ func GetAllPackages(c *gin.Context) {
 			"duration":    pkg.Duration,
 			"is_popular":  pkg.IsPopular,
 			"image_url":   pkg.ImageURL,
-			// Include all multi-language fields for admin dashboard
 			"name_id":        pkg.NameID,
 			"name_en":        pkg.NameEN,
 			"description_id": pkg.DescriptionID,
@@ -48,7 +46,6 @@ func GetAllPackages(c *gin.Context) {
 			"includes_en":    pkg.IncludesEN,
 			"excludes_id":    pkg.ExcludesID,
 			"excludes_en":    pkg.ExcludesEN,
-			// Legacy fields
 			"name":        pkg.Name,
 			"description": pkg.Description,
 			"routes":      pkg.Routes,
@@ -57,9 +54,7 @@ func GetAllPackages(c *gin.Context) {
 			"excludes":    pkg.Excludes,
 		}
 		
-		// Set language-specific fields with fallback to legacy fields
 		if lang == "en" {
-			// Use EN fields if available, otherwise fallback to ID fields
 			if pkg.NameEN != "" {
 				pkgMap["name"] = pkg.NameEN
 			} else {
@@ -91,23 +86,18 @@ func GetAllPackages(c *gin.Context) {
 				pkgMap["excludes"] = pkg.ExcludesID
 			}
 		} else {
-			// Use ID fields if available, otherwise fallback to legacy fields
 			if pkg.NameID != "" {
 				pkgMap["name"] = pkg.NameID
 			} else if pkg.Name != "" {
-				// Legacy fallback - use old Name field
-				pkgMap["name"] = pkg.Name
+				pkgMap["name"] = pkg.Name	
 			} else if pkg.Description != "" {
-				// If name is empty but description exists, use description as name
-				// (for backward compatibility with old data structure)
-				pkgMap["name"] = pkg.Description
+					pkgMap["name"] = pkg.Description
 			} else {
 				pkgMap["name"] = ""
 			}
 			if pkg.DescriptionID != "" {
 				pkgMap["description"] = pkg.DescriptionID
 			} else if pkg.Description != "" {
-				// Legacy fallback - use old Description field
 				pkgMap["description"] = pkg.Description
 			} else {
 				pkgMap["description"] = ""
@@ -115,7 +105,6 @@ func GetAllPackages(c *gin.Context) {
 			if len(pkg.FeaturesID) > 0 {
 				pkgMap["features"] = pkg.FeaturesID
 			} else if len(pkg.Features) > 0 {
-				// Legacy fallback - use old Features field
 				pkgMap["features"] = pkg.Features
 			} else {
 				pkgMap["features"] = []string{}
@@ -123,7 +112,6 @@ func GetAllPackages(c *gin.Context) {
 			if len(pkg.ExcludesID) > 0 {
 				pkgMap["excludes"] = pkg.ExcludesID
 			} else if len(pkg.Excludes) > 0 {
-				// Legacy fallback - use old Excludes field
 				pkgMap["excludes"] = pkg.Excludes
 			} else {
 				pkgMap["excludes"] = []string{}
@@ -598,25 +586,4 @@ func DeletePackage(c *gin.Context) {
 	}
 
 	utils.APIResponse(c, http.StatusOK, "Berhasil menghapus package", nil)
-}
-
-
-func ForceResetPackage(c *gin.Context) {
-    // 1. Matikan Sensor Keamanan (Foreign Key Check)
-    // Supaya database tidak protes kalau kita hapus paksa induk datanya
-    config.DB.Exec("SET FOREIGN_KEY_CHECKS = 0")
-
-    // 2. Lakukan Factory Reset (Truncate)
-    // Menghapus semua data & mereset ID kembali ke 1
-    if err := config.DB.Exec("TRUNCATE TABLE packages").Error; err != nil {
-        // Jangan lupa nyalakan lagi sensornya kalau error
-        config.DB.Exec("SET FOREIGN_KEY_CHECKS = 1")
-        utils.APIError(c, http.StatusInternalServerError, "Gagal reset tabel: " + err.Error())
-        return
-    }
-
-    // 3. Nyalakan Kembali Sensor Keamanan
-    config.DB.Exec("SET FOREIGN_KEY_CHECKS = 1")
-
-    utils.APIResponse(c, http.StatusOK, "Tabel berhasil di-reset paksa ke ID 1", nil)
 }
